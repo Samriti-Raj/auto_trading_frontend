@@ -1,0 +1,234 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upstox Auto Trading Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <h1>Automated Trading Dashboard</h1>
+            <div class="status-indicators">
+                <div class="status-item" id="botStatus">
+                    <span class="status-dot status-inactive"></span>
+                    <span class="status-label">Bot: Inactive</span>
+                </div>
+                <div class="status-item" id="marketStatus">
+                    <span class="status-dot status-closed"></span>
+                    <span class="status-label">Market: Closed</span>
+                </div>
+                <div class="status-item" id="connectionStatus">
+                    <span class="status-dot status-active"></span>
+                    <span class="status-label">Connected</span>
+                </div>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="current-time" id="currentTime">--:--:--</div>
+            <div class="total-pnl" id="headerPnl">
+                <span class="pnl-label">Total P&amp;L:</span>
+                <span class="pnl-value">₹0.00</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-section">
+                <h3>Bot Control</h3>
+                <button class="btn-toggle" id="toggleBot">
+                    <span class="btn-toggle-icon">▶</span>
+                    <span class="btn-toggle-text">START BOT</span>
+                </button>
+                <button class="btn-secondary" id="manualScan">
+                    <span>🔍</span> Manual Scan
+                </button>
+                <button class="btn-danger" id="squareOffAll">
+                    <span>⚠️</span> Square Off All
+                </button>
+            </div>
+
+            <div class="sidebar-section">
+                <h3>Settings</h3>
+                <label class="form-label">Refresh Interval</label>
+                <select class="form-control" id="refreshInterval">
+                    <option value="5">5 seconds</option>
+                    <option value="10" selected>10 seconds</option>
+                    <option value="15">15 seconds</option>
+                    <option value="30">30 seconds</option>
+                    <option value="60">60 seconds</option>
+                </select>
+            </div>
+
+            <div class="sidebar-section">
+                <h3>Display Options</h3>
+                <label class="checkbox-label">
+                    <input type="checkbox" id="showPortfolio" checked>
+                    Show Portfolio
+                </label>
+                <label class="checkbox-label">
+                    <input type="checkbox" id="showHistory" checked>
+                    Show Trade History
+                </label>
+                <label class="checkbox-label">
+                    <input type="checkbox" id="showSignals" checked>
+                    Show Live Signals
+                </label>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="last-update" id="lastUpdate">Last updated: --</div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Key Metrics Row -->
+            <section class="metrics-section">
+                <div class="metric-card">
+                    <div class="metric-label">Total Portfolio Value</div>
+                    <div class="metric-value" id="totalValue">₹100,000</div>
+                    <div class="metric-change" id="totalChange">+0.00%</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Cash Available</div>
+                    <div class="metric-value" id="cashAvailable">₹100,000</div>
+                    <div class="metric-change" id="cashPercent">100%</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Unrealized P&amp;L</div>
+                    <div class="metric-value" id="unrealizedPnl">₹0</div>
+                    <div class="metric-change" id="unrealizedChange">0.00%</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Realized P&amp;L</div>
+                    <div class="metric-value" id="realizedPnl">₹0</div>
+                    <div class="metric-change" id="winRate">0% Win Rate</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Active Positions</div>
+                    <div class="metric-value" id="activePositions">0</div>
+                    <div class="metric-change">Max: 8</div>
+                </div>
+            </section>
+
+            <!-- Live Trading Signals -->
+            <section class="section" id="signalsSection">
+                <div class="section-header">
+                    <h2>Live Trading Signals</h2>
+                    <span class="section-badge" id="signalCount">8 stocks</span>
+                </div>
+                <div class="table-container">
+                    <table class="data-table" id="signalsTable">
+                        <thead>
+                            <tr>
+                                <th>Stock</th>
+                                <th class="text-right">Price</th>
+                                <th>Signal</th>
+                                <th class="text-right">Score</th>
+                                <th class="text-right">Momentum</th>
+                                <th class="text-right">Volume</th>
+                                <th class="text-right">Stop Loss</th>
+                                <th class="text-right">Take Profit</th>
+                                <th>Reasons</th>
+                            </tr>
+                        </thead>
+                        <tbody id="signalsTableBody">
+                            <!-- Dynamic content -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Active Portfolio -->
+            <section class="section" id="portfolioSection">
+                <div class="section-header">
+                    <h2>Active Portfolio</h2>
+                    <span class="section-badge" id="portfolioCount">0 positions</span>
+                </div>
+                <div class="table-container" id="portfolioTableContainer">
+                    <div class="empty-state" id="emptyPortfolio">
+                        <div class="empty-icon">📊</div>
+                        <div>No active positions</div>
+                    </div>
+                    <table class="data-table" id="portfolioTable" style="display: none;">
+                        <thead>
+                            <tr>
+                                <th>Stock</th>
+                                <th class="text-right">Qty</th>
+                                <th class="text-right">Buy Price</th>
+                                <th class="text-right">Current</th>
+                                <th class="text-right">Invested</th>
+                                <th class="text-right">Value</th>
+                                <th class="text-right">P&amp;L</th>
+                                <th class="text-right">P&amp;L %</th>
+                                <th class="text-right">SL</th>
+                                <th class="text-right">TP</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="portfolioTableBody">
+                            <!-- Dynamic content -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Portfolio Performance Chart -->
+            <section class="section">
+                <div class="section-header">
+                    <h2>Portfolio Performance</h2>
+                </div>
+                <div class="chart-container">
+                    <canvas id="performanceChart"></canvas>
+                </div>
+            </section>
+
+            <!-- Trade History -->
+            <section class="section" id="historySection">
+                <div class="section-header">
+                    <h2>Trade History</h2>
+                    <div>
+                        <button class="btn-filter active" data-filter="all">All</button>
+                        <button class="btn-filter" data-filter="profitable">Profitable</button>
+                        <button class="btn-filter" data-filter="loss">Loss</button>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <div class="empty-state" id="emptyHistory">
+                        <div class="empty-icon">📜</div>
+                        <div>No trades yet</div>
+                    </div>
+                    <table class="data-table" id="historyTable" style="display: none;">
+                        <thead>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>Stock</th>
+                                <th>Action</th>
+                                <th class="text-right">Qty</th>
+                                <th class="text-right">Price</th>
+                                <th class="text-right">P&amp;L</th>
+                                <th class="text-right">Score</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyTableBody">
+                            <!-- Dynamic content -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>
