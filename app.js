@@ -1,5 +1,5 @@
 
-const API_BASE = "http://127.0.0.1:8000";
+const API_BASE = "https://auto-trading-backend-26tk.onrender.com/";
 
 // Selectors
 const toggleBotBtn = document.getElementById("toggleBot");
